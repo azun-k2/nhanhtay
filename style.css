@@ -1,20 +1,20 @@
-/* Lettrette site: one small stylesheet, light and dark. */
+/* Nhanh Tay site: one small stylesheet, light and dark. */
 :root {
-  --bg: #fbf6ec;
-  --card: #fffdf8;
-  --ink: #2c1d12;
-  --muted: #7a6150;
-  --accent: #a85f34;
-  --line: #efe2cc;
+  --bg: #f3f0ff;
+  --card: #ffffff;
+  --ink: #17123d;
+  --muted: #5e5890;
+  --accent: #4b2ee6;
+  --line: #e6e1fa;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1a130c;
-    --card: #291e14;
-    --ink: #f8f0e4;
-    --muted: #c9b196;
-    --accent: #eda854;
-    --line: #3d2e1f;
+    --bg: #110b33;
+    --card: #1e1653;
+    --ink: #f5f3ff;
+    --muted: #a9a3d9;
+    --accent: #ffc933;
+    --line: #2d2470;
   }
 }
 * { box-sizing: border-box; }
@@ -28,8 +28,8 @@ body {
 main { max-width: 720px; margin: 0 auto; }
 .hero { text-align: center; margin-bottom: 40px; }
 .icon {
-  width: 112px; height: 112px; margin: 0 auto 14px; display: block;
-  filter: drop-shadow(0 10px 22px rgba(184, 107, 61, 0.24));
+  width: 112px; height: 112px; margin: 0 auto 14px; display: block; border-radius: 25px;
+  filter: drop-shadow(0 10px 22px rgba(75, 46, 230, 0.28));
 }
 h1 { font-size: 34px; margin: 0 0 6px; letter-spacing: -0.4px; }
 .tagline { color: var(--muted); margin: 0; font-size: 18px; }
