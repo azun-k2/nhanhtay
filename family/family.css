@@ -4,6 +4,9 @@
    (--card, --line, --muted, --accent, and --ink or --text) so it follows
    the site's light and dark themes. */
 
+/* "More apps" links glide to the section rather than jump. */
+html { scroll-behavior: smooth; }
+
 /* Store badges, the official artwork at Apple's and Google's sizes:
    one height for all, a quarter of it as clear space between them. */
 .family-stores {
@@ -83,6 +86,7 @@ a.family-store:focus-visible { outline: 2px solid var(--accent); outline-offset:
   color: color-mix(in srgb, var(--app) 35%, #ffffff);
 }
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   .family-app, a.family-store img { transition: none; }
   .family-app:hover, .family-app:focus-visible, a.family-store:hover img { transform: none; }
 }
