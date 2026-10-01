@@ -1,0 +1,88 @@
+/* The family's shared pieces: store badges and the "More apps" grid.
+   Written into every site as family/family.css by _tools/site-family.py;
+   edit it there, not in a site. It uses each site's own colours
+   (--card, --line, --muted, --accent, and --ink or --text) so it follows
+   the site's light and dark themes. */
+
+/* Store badges, the official artwork at Apple's and Google's sizes:
+   one height for all, a quarter of it as clear space between them. */
+.family-stores {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start;
+  gap: 12px 14px; margin: 22px 0 6px;
+}
+.family-stores.start { justify-content: flex-start; margin-top: -8px; margin-bottom: 22px; }
+.family-store { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; }
+.family-store img { display: block; height: 46px; width: auto; }
+a.family-store img { transition: transform .15s ease, filter .15s ease; }
+a.family-store:hover img { transform: translateY(-1px); filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .22)); }
+a.family-store:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 10px; }
+.family-store.soon img { opacity: .4; filter: grayscale(1); }
+.family-soon { font-size: 13px; line-height: 1; color: var(--muted); }
+
+/* More apps: one card per sibling, tinted by that app's own colour (--app). */
+.family {
+  /* Wider than the page's text column, so four cards fit a row. */
+  margin: 48px calc(50% - min(520px, 50vw - 16px)) 6px;
+  scroll-margin-top: 24px;
+}
+.family h2 { text-align: center; font-size: 22px; margin: 0 0 6px; letter-spacing: -0.2px; }
+.family-sub { text-align: center; color: var(--muted); margin: 0 auto 20px; max-width: 34em; font-size: 15px; }
+/* Flex rather than grid, so a part-filled last row sits centred. */
+.family-grid {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+}
+.family-grid li { margin: 0; flex: 0 0 calc((100% - 36px) / 4); }
+@media (max-width: 1000px) { .family-grid li { flex-basis: calc((100% - 24px) / 3); } }
+@media (max-width: 740px)  { .family-grid li { flex-basis: calc((100% - 12px) / 2); } }
+.family-app {
+  display: flex; gap: 12px; align-items: flex-start; height: 100%;
+  padding: 14px 14px 13px; border-radius: 16px;
+  background: var(--card); border: 1px solid var(--line);
+  color: inherit; text-decoration: none;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.family-app:hover, .family-app:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--app) 55%, var(--line));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--app) 20%, transparent);
+  outline: none;
+}
+.family-app img {
+  width: 50px; height: 50px; flex: none; margin-top: 1px;
+  filter: drop-shadow(0 4px 9px color-mix(in srgb, var(--app) 28%, transparent));
+}
+.family-app img.round { border-radius: 22.5%; transform: scale(.84); }  /* iOS-only icons come square and full-bleed */
+.family-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.family-name { font-weight: 650; font-size: 16px; line-height: 1.3; color: var(--ink, var(--text, inherit)); }
+.family-tag { font-size: 14px; line-height: 1.4; color: var(--muted); }
+.family-platforms { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.family-platforms span {
+  font-size: 13px; line-height: 1.5; font-weight: 550; white-space: nowrap;
+  padding: 0 8px; border-radius: 999px;
+  background: color-mix(in srgb, var(--app) 11%, transparent);
+  color: color-mix(in srgb, var(--app) 62%, var(--ink, var(--text, #222)));
+}
+.family-more { text-align: center; font-size: 14px; color: var(--muted); margin: 16px 0 0; }
+
+@media (max-width: 500px) {
+  .family-grid { gap: 8px; }
+  .family-grid li { flex-basis: 100%; }
+  .family-app { padding: 12px; }
+  .family-app img { width: 44px; height: 44px; }
+  .family-store img { height: 42px; }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .family-platforms span {
+    background: color-mix(in srgb, var(--app) 22%, transparent);
+    color: color-mix(in srgb, var(--app) 35%, #ffffff);
+  }
+}
+:root[data-theme="dark"] .family-platforms span {
+  background: color-mix(in srgb, var(--app) 22%, transparent);
+  color: color-mix(in srgb, var(--app) 35%, #ffffff);
+}
+@media (prefers-reduced-motion: reduce) {
+  .family-app, a.family-store img { transition: none; }
+  .family-app:hover, .family-app:focus-visible, a.family-store:hover img { transform: none; }
+}
