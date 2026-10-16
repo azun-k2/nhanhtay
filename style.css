@@ -65,3 +65,25 @@ nav.links a {
 }
 footer { text-align: center; color: var(--muted); font-size: 14px; margin-top: 34px; }
 footer a { color: var(--muted); }
+
+/* Home page videos (build-videos.py, video.js): tap-to-play cards; the dialog plays the MP4 with its controls. */
+.nt-videos { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin: 26px auto 34px; max-width: 760px; }
+.nt-vcard { --h: 300px; position: relative; display: block; flex: none; height: var(--h); aspect-ratio: var(--ar, 9 / 16); border-radius: 22px; overflow: hidden; background: #2a1a8c; box-shadow: 0 12px 28px rgba(42, 26, 140, .22); text-decoration: none; }
+.nt-vcard.wide { --h: 196px; --ar: 16 / 9; }
+.nt-vcard img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+.nt-vcard:hover img { transform: scale(1.04); }
+.nt-vcard .play { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: #ffc933; box-shadow: 0 6px 18px rgba(0, 0, 0, .25); }
+.nt-vcard .play::after { content: ""; position: absolute; left: 25px; top: 18px; border-left: 22px solid #17123d; border-top: 14px solid transparent; border-bottom: 14px solid transparent; }
+.nt-vcard .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 30px 12px 10px; color: #fff; font-weight: 750; font-size: 14px; line-height: 1.25; text-align: center; background: linear-gradient(transparent, rgba(23, 18, 61, .78)); }
+.nt-vcard:focus-visible { outline: 4px solid #4b2ee6; outline-offset: 3px; }
+.vbox { position: fixed; inset: 0; z-index: 50; background: rgba(17, 11, 51, .9); display: grid; place-items: center; padding: 20px; }
+.vbox[hidden] { display: none; }
+.vbox video { width: min(94vw, 88vh * 16 / 9, 1280px); height: auto; aspect-ratio: 16 / 9; border-radius: 18px; background: #000; }
+.vbox video.tall { width: min(94vw, 88vh * 9 / 16, 720px); aspect-ratio: 9 / 16; }
+.vclose { position: fixed; top: 14px; right: 14px; inset-inline-end: 14px; width: 48px; height: 48px; border: 0; border-radius: 50%; background: #fff; color: #222; font-size: 30px; line-height: 1; cursor: pointer; }
+body.vopen { overflow: hidden; }
+@media (max-width: 640px) {
+  .nt-videos { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 20px 12px; margin-left: -20px; margin-right: -20px; }
+  .nt-vcard { --h: 300px; scroll-snap-align: start; }
+  .nt-vcard.wide { --h: 300px; }
+}
