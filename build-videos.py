@@ -11,8 +11,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 CLOSE = json.loads((ROOT / "video-close.json").read_text())
-# (video, card shape, title: "tagline" or the index of the bullet in "What it is")
-VIDEOS = [("play", "tall", "tagline"), ("rules", "tall", 0), ("faster", "tall", 1), ("languages", "tall", 2), ("ipad", "wide", 3)]
+# (video, card shape, title: "tagline", the index of the bullet in "What it is", or "language": the family sites'
+# own word for Language, since the page's "Two quizzes" bullet predates the 34 languages the video shows)
+VIDEOS = [("play", "tall", "tagline"), ("rules", "tall", 0), ("faster", "tall", 1), ("languages", "tall", "language"), ("ipad", "wide", 3)]
+FAMILY_STRINGS = ROOT.parent / "_tools/site-family/strings"
 A, B = "<!-- nhanhtay:videos -->", "<!-- /nhanhtay:videos -->"
 
 
@@ -36,7 +38,10 @@ def block(t, lang, up):
     v = "vi" if lang == "vi" else "en"
     cards = []
     for name, shape, ti in VIDEOS:
-        title = e(tagline if ti == "tagline" else leads[ti])
+        if ti == "language":
+            title = e(json.loads((FAMILY_STRINGS / f"{lang}.json").read_text())["language"])
+        else:
+            title = e(tagline if ti == "tagline" else leads[ti])
         src = f"{up}video/{name}-{v}"
         cards.append(f'<a class="nt-vcard {shape}" href="{src}.mp4" data-video data-title="{title}" data-poster="{src}.jpg" data-shape="{shape}">'
                      f'<img src="{src}.jpg" alt="" loading="lazy"><span class="play"></span><span class="cap">{title}</span></a>')
