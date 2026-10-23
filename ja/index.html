@@ -52,6 +52,7 @@
 <body>
 <main>
 <div class="hero">
+  <div class="hero-pill">⚡ 4つの答えを素早く並べ替え · 言語ごとに150問 · 34言語対応 · 広告・スタミナなし</div>
   <img class="icon" src="../icon-512.png" alt="" width="112" height="112">
   <h1>Nhanh Tay</h1>
   <p class="tagline">4つの答えを正しい順番に。素早く！</p>
@@ -108,6 +109,124 @@
   </details><!-- /family:nav -->
   </nav>
 </div>
+<div class="demo-wrapper" id="demo">
+  <div class="nhanhtay-stage" role="group" aria-label="Interactive demo: speed quiz test">
+    <div class="nhanhtay-quiz-card">
+      <div class="nhanhtay-top-bar">
+        <span>⚡ ラウンド 1 · 反射神経テスト</span>
+        <span id="ntTimer" class="nhanhtay-timer-badge">⏱️ 0.00s</span>
+      </div>
+      <div id="ntPrompt" class="nhanhtay-prompt">太陽から近い順に4つの惑星を並べ替えてください：</div>
+      <div id="ntGrid" class="nhanhtay-options">
+        <button class="nhanhtay-btn" data-idx="2"><span>C</span> <b class="opt-txt">地球</b></button>
+        <button class="nhanhtay-btn" data-idx="0"><span>A</span> <b class="opt-txt">水星</b></button>
+        <button class="nhanhtay-btn" data-idx="3"><span>D</span> <b class="opt-txt">火星</b></button>
+        <button class="nhanhtay-btn" data-idx="1"><span>B</span> <b class="opt-txt">金星</b></button>
+      </div>
+      <div id="ntStatus" class="nhanhtay-status-msg">正しい順番（1番〜4番）でタップしてください</div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button id="ntRetryBtn" class="app-chip" style="font-weight:750;">🔄 別の問題を試す</button>
+    </div>
+    <span class="demo-hint">💡 4つの選択肢を正しい順序で素早くタップしてタイムを競おう</span>
+  </div>
+  <p class="demo-note">Webブラウザ用シミュレーションです。iPhone、iPad、Androidアプリではハプティック触覚振動とシンセ音響が楽しめます。</p>
+</div>
+<script>
+(function() {
+  var promptEl = document.getElementById('ntPrompt');
+  var gridEl = document.getElementById('ntGrid');
+  var statusEl = document.getElementById('ntStatus');
+  var timerEl = document.getElementById('ntTimer');
+  var retryBtn = document.getElementById('ntRetryBtn');
+
+  var questions = [
+    {
+      p: "太陽から近い順に4つの惑星を並べ替えてください：",
+      opts: ["水星", "金星", "地球", "火星"]
+    },
+    {
+      p: "歴史の古い順から新しい順に並べ替えてください：",
+      opts: ["石器時代", "青銅器時代", "中世", "デジタル時代"]
+    }
+  ];
+
+  var qIdx = 0;
+  var picked = [];
+  var startTime = Date.now();
+  var timerInterval = null;
+  var isDone = false;
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    startTime = Date.now();
+    timerInterval = setInterval(function() {
+      if (isDone) return;
+      var elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+      timerEl.textContent = '⏱️ ' + elapsed + 's';
+    }, 40);
+  }
+
+  function loadQuestion(idx) {
+    qIdx = idx % questions.length;
+    var q = questions[qIdx];
+    promptEl.textContent = q.p;
+    statusEl.textContent = "正しい順番（1番〜4番）でタップしてください";
+    picked = [];
+    isDone = false;
+    startTimer();
+
+    var order = [0, 1, 2, 3].sort(function() { return 0.5 - Math.random(); });
+    gridEl.innerHTML = '';
+    var letters = ['A', 'B', 'C', 'D'];
+    order.forEach(function(ansIdx, i) {
+      var btn = document.createElement('button');
+      btn.className = 'nhanhtay-btn';
+      btn.setAttribute('data-idx', ansIdx);
+      btn.innerHTML = '<span>' + letters[i] + '</span> <b class="opt-txt">' + q.opts[ansIdx] + '</b>';
+      btn.addEventListener('click', function() { onBtnClick(btn, ansIdx); });
+      gridEl.appendChild(btn);
+    });
+  }
+
+  function onBtnClick(btn, ansIdx) {
+    if (isDone || btn.classList.contains('picked')) return;
+
+    var expected = picked.length;
+    if (ansIdx === expected) {
+      picked.push(ansIdx);
+      btn.classList.add('picked');
+      var badge = document.createElement('span');
+      badge.className = 'nhanhtay-order-badge';
+      badge.textContent = picked.length;
+      btn.appendChild(badge);
+
+      if (picked.length === 4) {
+        isDone = true;
+        clearInterval(timerInterval);
+        var finalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        timerEl.textContent = '⏱️ ' + finalTime + 's';
+        statusEl.textContent = "⚡ 素晴らしい！驚異的なスピードです。別の問題に挑戦！".replace('1.48s', finalTime + 's');
+        var allBtns = gridEl.querySelectorAll('.nhanhtay-btn');
+        allBtns.forEach(function(b) { b.classList.add('correct'); });
+      }
+    } else {
+      btn.style.borderColor = '#ef4444';
+      btn.style.background = 'rgba(239, 68, 68, 0.3)';
+      statusEl.textContent = "❌ 順番が違います！リセット中...";
+      setTimeout(function() {
+        loadQuestion(qIdx);
+      }, 500);
+    }
+  }
+
+  retryBtn.addEventListener('click', function() {
+    loadQuestion(qIdx + 1);
+  });
+
+  loadQuestion(0);
+})();
+</script>
 
 <!-- family:shot --><figure class="shot"><img src="../img/hero.jpg" alt="" width="1600" height="860"></figure><!-- /family:shot -->
 <!-- nhanhtay:videos -->
@@ -128,6 +247,49 @@
   <p class="note">iOS および iPadOS 17 以降の iPhone と iPad。Android 8 以降。</p>
 </section>
 
+
+<section class="card comparison-card" id="comparison">
+  <h2>広告とスタミナ制限だらけのクイズアプリ vs Nhanh Tay</h2>
+  <p class="section-lead">広告なし、ハート制限なし、純粋な指先の反射神経スピード勝負。</p>
+  <div class="table-scroll">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>項目</th>
+          <th>一般的な無料クイズ</th>
+          <th class="highlight-col">Nhanh Tay</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>広告の邪魔</strong></td>
+          <td>1問解くごとに強制動画広告が表示される</td>
+          <td class="highlight-col"><strong>100%完全無広告。思考が途切れない連続プレイ</strong></td>
+        </tr>
+        <tr>
+          <td><strong>ライフ無制限</strong></td>
+          <td>ハートが尽きると課金か待機を強いられる</td>
+          <td class="highlight-col"><strong>ライフ制限なし。好きなだけ何度でも挑戦可能</strong></td>
+        </tr>
+        <tr>
+          <td><strong>34言語独自執筆</strong></td>
+          <td>機械翻訳による不自然な表現や破綻</td>
+          <td class="highlight-col"><strong>文化に合わせて手作業で書かれた各150問</strong></td>
+        </tr>
+        <tr>
+          <td><strong>操作性とサウンド</strong></td>
+          <td>ボタンが小さく反応が鈍い、うるさい効果音</td>
+          <td class="highlight-col"><strong>大きなタッチパッド、心地よいハプティクス音響</strong></td>
+        </tr>
+        <tr>
+          <td><strong>オフライン対応</strong></td>
+          <td>広告配信のために常時通信を強制</td>
+          <td class="highlight-col"><strong>完全オフライン動作。Game Center連携</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 <section class="card">
   <h2>プライバシーをひとことで</h2>
   <p>Nhanh Tay には広告も分析もトラッキングもアカウントもなく、データを一切収集しません。ネットワークを使うのはプラットフォームのゲームサービス（Game Center または Google Play Games）だけで、それもサインインしているときに限ります。詳しくは<a href="privacy.html">プライバシーポリシー</a>に同じ内容をより詳しく書いています。</p>

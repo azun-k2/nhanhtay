@@ -52,6 +52,7 @@
 <body>
 <main>
 <div class="hero">
+  <div class="hero-pill">⚡ Nhanh Tay · 150 questions · 34 languages · 0 ads</div>
   <img class="icon" src="../icon-512.png" alt="" width="112" height="112">
   <h1>Nhanh Tay</h1>
   <p class="tagline">चार जवाब, सही क्रम में। फटाफट!</p>
@@ -108,6 +109,124 @@
   </details><!-- /family:nav -->
   </nav>
 </div>
+<div class="demo-wrapper" id="demo">
+  <div class="nhanhtay-stage" role="group" aria-label="Interactive demo: speed quiz test">
+    <div class="nhanhtay-quiz-card">
+      <div class="nhanhtay-top-bar">
+        <span>⚡ ROUND 1</span>
+        <span id="ntTimer" class="nhanhtay-timer-badge">⏱️ 0.00s</span>
+      </div>
+      <div id="ntPrompt" class="nhanhtay-prompt">सूर्य से निकटता के अनुसार 4 ग्रहों को क्रमबद्ध करें:</div>
+      <div id="ntGrid" class="nhanhtay-options">
+        <button class="nhanhtay-btn" data-idx="2"><span>C</span> <b class="opt-txt">पृथ्वी</b></button>
+        <button class="nhanhtay-btn" data-idx="0"><span>A</span> <b class="opt-txt">बुध</b></button>
+        <button class="nhanhtay-btn" data-idx="3"><span>D</span> <b class="opt-txt">मंगल</b></button>
+        <button class="nhanhtay-btn" data-idx="1"><span>B</span> <b class="opt-txt">शुक्र</b></button>
+      </div>
+      <div id="ntStatus" class="nhanhtay-status-msg">Tap the answers in correct order (1st to 4th)</div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button id="ntRetryBtn" class="app-chip" style="font-weight:750;">🔄 Try another question</button>
+    </div>
+    <span class="demo-hint">💡 Tap options in correct sequence quickly</span>
+  </div>
+  <p class="demo-note">Interactive browser preview. Native iOS and Android editions feature haptics and generative music.</p>
+</div>
+<script>
+(function() {
+  var promptEl = document.getElementById('ntPrompt');
+  var gridEl = document.getElementById('ntGrid');
+  var statusEl = document.getElementById('ntStatus');
+  var timerEl = document.getElementById('ntTimer');
+  var retryBtn = document.getElementById('ntRetryBtn');
+
+  var questions = [
+    {
+      p: "सूर्य से निकटता के अनुसार 4 ग्रहों को क्रमबद्ध करें:",
+      opts: ["बुध", "शुक्र", "पृथ्वी", "मंगल"]
+    },
+    {
+      p: "4 युगों को कालक्रमानुसार व्यवस्थित करें:",
+      opts: ["पाषाण युग", "कांस्य युग", "मध्यकाल", "डिजिटल युग"]
+    }
+  ];
+
+  var qIdx = 0;
+  var picked = [];
+  var startTime = Date.now();
+  var timerInterval = null;
+  var isDone = false;
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    startTime = Date.now();
+    timerInterval = setInterval(function() {
+      if (isDone) return;
+      var elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+      timerEl.textContent = '⏱️ ' + elapsed + 's';
+    }, 40);
+  }
+
+  function loadQuestion(idx) {
+    qIdx = idx % questions.length;
+    var q = questions[qIdx];
+    promptEl.textContent = q.p;
+    statusEl.textContent = "Tap the answers in correct order (1st to 4th)";
+    picked = [];
+    isDone = false;
+    startTimer();
+
+    var order = [0, 1, 2, 3].sort(function() { return 0.5 - Math.random(); });
+    gridEl.innerHTML = '';
+    var letters = ['A', 'B', 'C', 'D'];
+    order.forEach(function(ansIdx, i) {
+      var btn = document.createElement('button');
+      btn.className = 'nhanhtay-btn';
+      btn.setAttribute('data-idx', ansIdx);
+      btn.innerHTML = '<span>' + letters[i] + '</span> <b class="opt-txt">' + q.opts[ansIdx] + '</b>';
+      btn.addEventListener('click', function() { onBtnClick(btn, ansIdx); });
+      gridEl.appendChild(btn);
+    });
+  }
+
+  function onBtnClick(btn, ansIdx) {
+    if (isDone || btn.classList.contains('picked')) return;
+
+    var expected = picked.length;
+    if (ansIdx === expected) {
+      picked.push(ansIdx);
+      btn.classList.add('picked');
+      var badge = document.createElement('span');
+      badge.className = 'nhanhtay-order-badge';
+      badge.textContent = picked.length;
+      btn.appendChild(badge);
+
+      if (picked.length === 4) {
+        isDone = true;
+        clearInterval(timerInterval);
+        var finalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        timerEl.textContent = '⏱️ ' + finalTime + 's';
+        statusEl.textContent = "⚡ Perfect order! Tap below to try another.".replace('1.48s', finalTime + 's');
+        var allBtns = gridEl.querySelectorAll('.nhanhtay-btn');
+        allBtns.forEach(function(b) { b.classList.add('correct'); });
+      }
+    } else {
+      btn.style.borderColor = '#ef4444';
+      btn.style.background = 'rgba(239, 68, 68, 0.3)';
+      statusEl.textContent = "❌ Not quite right! Resetting...";
+      setTimeout(function() {
+        loadQuestion(qIdx);
+      }, 500);
+    }
+  }
+
+  retryBtn.addEventListener('click', function() {
+    loadQuestion(qIdx + 1);
+  });
+
+  loadQuestion(0);
+})();
+</script>
 
 <!-- family:shot --><figure class="shot"><img src="../img/hero.jpg" alt="" width="1600" height="860"></figure><!-- /family:shot -->
 <!-- nhanhtay:videos -->
@@ -128,6 +247,49 @@
   <p class="note">iOS और iPadOS 17 या उसके बाद वाले iPhone और iPad। Android 8 या उसके बाद का।</p>
 </section>
 
+
+<section class="card comparison-card" id="comparison">
+  <h2>Freemium quiz apps vs Nhanh Tay</h2>
+  <p class="section-lead">Pure reaction challenge without ads, waiting times, or machine translations.</p>
+  <div class="table-scroll">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Typical Quiz Apps</th>
+          <th class="highlight-col">Nhanh Tay</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Zero Ads</strong></td>
+          <td>Constant video interruptions after rounds</td>
+          <td class="highlight-col"><strong>100% ad-free, pure uninterrupted focus</strong></td>
+        </tr>
+        <tr>
+          <td><strong>No Lives Limit</strong></td>
+          <td>Limited hearts requiring payments or long waiting</td>
+          <td class="highlight-col"><strong>Unlimited attempts, play anytime without limits</strong></td>
+        </tr>
+        <tr>
+          <td><strong>34 Cultural Editions</strong></td>
+          <td>Broken automated translations</td>
+          <td class="highlight-col"><strong>150 handcrafted questions per culture</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Tactile Controls</strong></td>
+          <td>Clunky small buttons with high latency</td>
+          <td class="highlight-col"><strong>Large pads with responsive haptic feedback</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Offline Mode</strong></td>
+          <td>Forced connectivity for tracking</td>
+          <td class="highlight-col"><strong>Fully offline with local records</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 <section class="card">
   <h2>एक पैराग्राफ़ में गोपनीयता</h2>
   <p>Nhanh Tay में न विज्ञापन हैं, न एनालिटिक्स, न ट्रैकिंग, न अकाउंट, और यह कोई डेटा इकट्ठा नहीं करता। नेटवर्क का इस्तेमाल सिर्फ़ प्लैटफ़ॉर्म की गेम सेवा (Game Center या Google Play Games) के लिए होता है, और वह भी तभी जब आप उसमें साइन इन हों। पूरी <a href="privacy.html">गोपनीयता नीति</a> यही बात ज़्यादा विस्तार से कहती है।</p>

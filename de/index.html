@@ -52,6 +52,7 @@
 <body>
 <main>
 <div class="hero">
+  <div class="hero-pill">⚡ 4 Antworten sortieren · 150 Fragen pro Sprache · 34 Sprachen · 0 Werbung</div>
   <img class="icon" src="../icon-512.png" alt="" width="112" height="112">
   <h1>Nhanh Tay</h1>
   <p class="tagline">Bring vier Antworten in die richtige Reihenfolge. Schnell.</p>
@@ -108,6 +109,124 @@
   </details><!-- /family:nav -->
   </nav>
 </div>
+<div class="demo-wrapper" id="demo">
+  <div class="nhanhtay-stage" role="group" aria-label="Interactive demo: speed quiz test">
+    <div class="nhanhtay-quiz-card">
+      <div class="nhanhtay-top-bar">
+        <span>⚡ RUNDE 1</span>
+        <span id="ntTimer" class="nhanhtay-timer-badge">⏱️ 0.00s</span>
+      </div>
+      <div id="ntPrompt" class="nhanhtay-prompt">Ordnen Sie die 4 Planeten nach Abstand zur Sonne:</div>
+      <div id="ntGrid" class="nhanhtay-options">
+        <button class="nhanhtay-btn" data-idx="2"><span>C</span> <b class="opt-txt">Erde</b></button>
+        <button class="nhanhtay-btn" data-idx="0"><span>A</span> <b class="opt-txt">Merkur</b></button>
+        <button class="nhanhtay-btn" data-idx="3"><span>D</span> <b class="opt-txt">Mars</b></button>
+        <button class="nhanhtay-btn" data-idx="1"><span>B</span> <b class="opt-txt">Venus</b></button>
+      </div>
+      <div id="ntStatus" class="nhanhtay-status-msg">Tippen Sie die Antworten in richtiger Reihenfolge (1 bis 4)</div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button id="ntRetryBtn" class="app-chip" style="font-weight:750;">🔄 Neue Frage versuchen</button>
+    </div>
+    <span class="demo-hint">💡 Tap options in correct sequence quickly</span>
+  </div>
+  <p class="demo-note">Interactive browser preview. Native iOS and Android editions feature haptics and generative music.</p>
+</div>
+<script>
+(function() {
+  var promptEl = document.getElementById('ntPrompt');
+  var gridEl = document.getElementById('ntGrid');
+  var statusEl = document.getElementById('ntStatus');
+  var timerEl = document.getElementById('ntTimer');
+  var retryBtn = document.getElementById('ntRetryBtn');
+
+  var questions = [
+    {
+      p: "Ordnen Sie die 4 Planeten nach Abstand zur Sonne:",
+      opts: ["Merkur", "Venus", "Erde", "Mars"]
+    },
+    {
+      p: "Ordnen Sie 4 Epochen chronologisch:",
+      opts: ["Steinzeit", "Bronzezeit", "Mittelalter", "Digitalzeitalter"]
+    }
+  ];
+
+  var qIdx = 0;
+  var picked = [];
+  var startTime = Date.now();
+  var timerInterval = null;
+  var isDone = false;
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    startTime = Date.now();
+    timerInterval = setInterval(function() {
+      if (isDone) return;
+      var elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+      timerEl.textContent = '⏱️ ' + elapsed + 's';
+    }, 40);
+  }
+
+  function loadQuestion(idx) {
+    qIdx = idx % questions.length;
+    var q = questions[qIdx];
+    promptEl.textContent = q.p;
+    statusEl.textContent = "Tippen Sie die Antworten in richtiger Reihenfolge (1 bis 4)";
+    picked = [];
+    isDone = false;
+    startTimer();
+
+    var order = [0, 1, 2, 3].sort(function() { return 0.5 - Math.random(); });
+    gridEl.innerHTML = '';
+    var letters = ['A', 'B', 'C', 'D'];
+    order.forEach(function(ansIdx, i) {
+      var btn = document.createElement('button');
+      btn.className = 'nhanhtay-btn';
+      btn.setAttribute('data-idx', ansIdx);
+      btn.innerHTML = '<span>' + letters[i] + '</span> <b class="opt-txt">' + q.opts[ansIdx] + '</b>';
+      btn.addEventListener('click', function() { onBtnClick(btn, ansIdx); });
+      gridEl.appendChild(btn);
+    });
+  }
+
+  function onBtnClick(btn, ansIdx) {
+    if (isDone || btn.classList.contains('picked')) return;
+
+    var expected = picked.length;
+    if (ansIdx === expected) {
+      picked.push(ansIdx);
+      btn.classList.add('picked');
+      var badge = document.createElement('span');
+      badge.className = 'nhanhtay-order-badge';
+      badge.textContent = picked.length;
+      btn.appendChild(badge);
+
+      if (picked.length === 4) {
+        isDone = true;
+        clearInterval(timerInterval);
+        var finalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        timerEl.textContent = '⏱️ ' + finalTime + 's';
+        statusEl.textContent = "⚡ Perfekt! Schnelle Reflexe! Neue Frage ausprobieren.".replace('1.48s', finalTime + 's');
+        var allBtns = gridEl.querySelectorAll('.nhanhtay-btn');
+        allBtns.forEach(function(b) { b.classList.add('correct'); });
+      }
+    } else {
+      btn.style.borderColor = '#ef4444';
+      btn.style.background = 'rgba(239, 68, 68, 0.3)';
+      statusEl.textContent = "❌ Falsche Reihenfolge! Zurücksetzen...";
+      setTimeout(function() {
+        loadQuestion(qIdx);
+      }, 500);
+    }
+  }
+
+  retryBtn.addEventListener('click', function() {
+    loadQuestion(qIdx + 1);
+  });
+
+  loadQuestion(0);
+})();
+</script>
 
 <!-- family:shot --><figure class="shot"><img src="../img/hero.jpg" alt="" width="1600" height="860"></figure><!-- /family:shot -->
 <!-- nhanhtay:videos -->
@@ -128,6 +247,49 @@
   <p class="note">iPhone und iPad mit iOS bzw. iPadOS 17 oder neuer. Android 8 oder neuer.</p>
 </section>
 
+
+<section class="card comparison-card" id="comparison">
+  <h2>Werbeüberladene Quiz-Apps vs Nhanh Tay</h2>
+  <p class="section-lead">Reine Reaktionsschnelligkeit ohne Werbung oder künstliche Lebenslimits.</p>
+  <div class="table-scroll">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Aspekt</th>
+          <th>Kostenlose Quiz-Apps</th>
+          <th class="highlight-col">Nhanh Tay</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Keine Werbung</strong></td>
+          <td>Lange Werbevideos nach jeder Runde</td>
+          <td class="highlight-col"><strong>100 % werbefrei, ungestörter Spielfluss</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Keine Lebenslimits</strong></td>
+          <td>5-Leben-System verlangt Wartezeit oder Kauf</td>
+          <td class="highlight-col"><strong>Unbegrenzt spielen ohne Begrenzung</strong></td>
+        </tr>
+        <tr>
+          <td><strong>34 eigene Sprachen</strong></td>
+          <td>Fehlerhafte automatische Übersetzung</td>
+          <td class="highlight-col"><strong>150 eigens verfasste Kulturfragen</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Haptik & Tasten</strong></td>
+          <td>Kleine Buttons und Verzögerungen</td>
+          <td class="highlight-col"><strong>Große taktile Tasten und präzise Haptik</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Offline spielen</strong></td>
+          <td>Zwanghafte Online-Verbindung</td>
+          <td class="highlight-col"><strong>Vollständig offline spielbar mit lokalen Rekorden</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 <section class="card">
   <h2>Datenschutz in einem Absatz</h2>
   <p>Nhanh Tay hat keine Werbung, keine Analyse, kein Tracking und kein Konto und sammelt keine Daten. Das Netzwerk nutzt es nur für den Spieldienst der Plattform (Game Center oder Google Play Games), und nur, wenn du dort angemeldet bist. Die vollständige <a href="privacy.html">Datenschutzerklärung</a> sagt dasselbe ausführlicher.</p>

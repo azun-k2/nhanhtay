@@ -52,6 +52,7 @@
 <body>
 <main>
 <div class="hero">
+  <div class="hero-pill">⚡ Ordonnez 4 réponses · 150 questions par langue · 34 langues · 0 pub</div>
   <img class="icon" src="../icon-512.png" alt="" width="112" height="112">
   <h1>Nhanh Tay</h1>
   <p class="tagline">Remettez quatre réponses dans l’ordre. Vite.</p>
@@ -108,6 +109,124 @@
   </details><!-- /family:nav -->
   </nav>
 </div>
+<div class="demo-wrapper" id="demo">
+  <div class="nhanhtay-stage" role="group" aria-label="Interactive demo: speed quiz test">
+    <div class="nhanhtay-quiz-card">
+      <div class="nhanhtay-top-bar">
+        <span>⚡ MANCHE 1</span>
+        <span id="ntTimer" class="nhanhtay-timer-badge">⏱️ 0.00s</span>
+      </div>
+      <div id="ntPrompt" class="nhanhtay-prompt">Ordonnez ces 4 planètes de la plus proche à la plus éloignée du Soleil :</div>
+      <div id="ntGrid" class="nhanhtay-options">
+        <button class="nhanhtay-btn" data-idx="2"><span>C</span> <b class="opt-txt">Terre</b></button>
+        <button class="nhanhtay-btn" data-idx="0"><span>A</span> <b class="opt-txt">Mercure</b></button>
+        <button class="nhanhtay-btn" data-idx="3"><span>D</span> <b class="opt-txt">Mars</b></button>
+        <button class="nhanhtay-btn" data-idx="1"><span>B</span> <b class="opt-txt">Vénus</b></button>
+      </div>
+      <div id="ntStatus" class="nhanhtay-status-msg">Touchez les réponses dans l'ordre (de 1 à 4)</div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button id="ntRetryBtn" class="app-chip" style="font-weight:750;">🔄 Autre question</button>
+    </div>
+    <span class="demo-hint">💡 Tap options in correct sequence quickly</span>
+  </div>
+  <p class="demo-note">Interactive browser preview. Native iOS and Android editions feature haptics and generative music.</p>
+</div>
+<script>
+(function() {
+  var promptEl = document.getElementById('ntPrompt');
+  var gridEl = document.getElementById('ntGrid');
+  var statusEl = document.getElementById('ntStatus');
+  var timerEl = document.getElementById('ntTimer');
+  var retryBtn = document.getElementById('ntRetryBtn');
+
+  var questions = [
+    {
+      p: "Ordonnez ces 4 planètes de la plus proche à la plus éloignée du Soleil :",
+      opts: ["Mercure", "Vénus", "Terre", "Mars"]
+    },
+    {
+      p: "Ordonnez ces 4 époques par ordre chronologique :",
+      opts: ["Âge de pierre", "Âge du bronze", "Moyen Âge", "Ère numérique"]
+    }
+  ];
+
+  var qIdx = 0;
+  var picked = [];
+  var startTime = Date.now();
+  var timerInterval = null;
+  var isDone = false;
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    startTime = Date.now();
+    timerInterval = setInterval(function() {
+      if (isDone) return;
+      var elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+      timerEl.textContent = '⏱️ ' + elapsed + 's';
+    }, 40);
+  }
+
+  function loadQuestion(idx) {
+    qIdx = idx % questions.length;
+    var q = questions[qIdx];
+    promptEl.textContent = q.p;
+    statusEl.textContent = "Touchez les réponses dans l'ordre (de 1 à 4)";
+    picked = [];
+    isDone = false;
+    startTimer();
+
+    var order = [0, 1, 2, 3].sort(function() { return 0.5 - Math.random(); });
+    gridEl.innerHTML = '';
+    var letters = ['A', 'B', 'C', 'D'];
+    order.forEach(function(ansIdx, i) {
+      var btn = document.createElement('button');
+      btn.className = 'nhanhtay-btn';
+      btn.setAttribute('data-idx', ansIdx);
+      btn.innerHTML = '<span>' + letters[i] + '</span> <b class="opt-txt">' + q.opts[ansIdx] + '</b>';
+      btn.addEventListener('click', function() { onBtnClick(btn, ansIdx); });
+      gridEl.appendChild(btn);
+    });
+  }
+
+  function onBtnClick(btn, ansIdx) {
+    if (isDone || btn.classList.contains('picked')) return;
+
+    var expected = picked.length;
+    if (ansIdx === expected) {
+      picked.push(ansIdx);
+      btn.classList.add('picked');
+      var badge = document.createElement('span');
+      badge.className = 'nhanhtay-order-badge';
+      badge.textContent = picked.length;
+      btn.appendChild(badge);
+
+      if (picked.length === 4) {
+        isDone = true;
+        clearInterval(timerInterval);
+        var finalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        timerEl.textContent = '⏱️ ' + finalTime + 's';
+        statusEl.textContent = "⚡ Bravo ! Réflexes parfaits ! Touchez ci-dessous pour changer.".replace('1.48s', finalTime + 's');
+        var allBtns = gridEl.querySelectorAll('.nhanhtay-btn');
+        allBtns.forEach(function(b) { b.classList.add('correct'); });
+      }
+    } else {
+      btn.style.borderColor = '#ef4444';
+      btn.style.background = 'rgba(239, 68, 68, 0.3)';
+      statusEl.textContent = "❌ Mauvais ordre ! Réinitialisation...";
+      setTimeout(function() {
+        loadQuestion(qIdx);
+      }, 500);
+    }
+  }
+
+  retryBtn.addEventListener('click', function() {
+    loadQuestion(qIdx + 1);
+  });
+
+  loadQuestion(0);
+})();
+</script>
 
 <!-- family:shot --><figure class="shot"><img src="../img/hero.jpg" alt="" width="1600" height="860"></figure><!-- /family:shot -->
 <!-- nhanhtay:videos -->
@@ -128,6 +247,49 @@
   <p class="note">iPhone et iPad sous iOS et iPadOS 17 ou version ultérieure. Android 8 ou version ultérieure.</p>
 </section>
 
+
+<section class="card comparison-card" id="comparison">
+  <h2>Jeux de quiz envahis de pubs vs Nhanh Tay</h2>
+  <p class="section-lead">Un défi pur de réflexes et d'ordonnancement sans pub ni limite de vies.</p>
+  <div class="table-scroll">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Quiz gratuits classiques</th>
+          <th class="highlight-col">Nhanh Tay</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Zéro pub</strong></td>
+          <td>Vidéos publicitaires forcées après chaque niveau</td>
+          <td class="highlight-col"><strong>100 % sans pub, concentration totale</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Vies illimitées</strong></td>
+          <td>Système de cœurs obligeant à attendre ou payer</td>
+          <td class="highlight-col"><strong>Rejouez immédiatement et autant de fois que voulu</strong></td>
+        </tr>
+        <tr>
+          <td><strong>34 langues authentiques</strong></td>
+          <td>Traductions automatiques grossières</td>
+          <td class="highlight-col"><strong>150 questions écrites sur mesure par langue</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Toucher et son</strong></td>
+          <td>Petites touches lentes et bruits stridents</td>
+          <td class="highlight-col"><strong>Grands boutons tactiles avec clics haptiques</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Mode hors ligne</strong></td>
+          <td>Connexion forcée pour traçage publicitaire</td>
+          <td class="highlight-col"><strong>100 % hors ligne avec scores sur l'appareil</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 <section class="card">
   <h2>La confidentialité en un paragraphe</h2>
   <p>Nhanh Tay n’a ni publicité, ni statistiques, ni pistage, ni compte, et ne collecte aucune donnée. Il n’utilise le réseau que pour le service de jeu de la plateforme (Game Center ou Google Play Games), et seulement si vous y êtes connecté. La <a href="privacy.html">politique de confidentialité</a> complète dit la même chose plus en détail.</p>

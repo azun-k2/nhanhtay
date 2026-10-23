@@ -52,6 +52,7 @@
 <body>
 <main>
 <div class="hero">
+  <div class="hero-pill">⚡ Xếp 4 đáp án theo thứ tự · 150 câu hỏi mỗi ngôn ngữ · 34 ngôn ngữ · 0 quảng cáo hay mạng sống</div>
   <img class="icon" src="../icon-512.png" alt="" width="112" height="112">
   <h1>Nhanh Tay</h1>
   <p class="tagline">Xếp bốn đáp án theo thứ tự. Thật nhanh!</p>
@@ -108,6 +109,124 @@
   </details><!-- /family:nav -->
   </nav>
 </div>
+<div class="demo-wrapper" id="demo">
+  <div class="nhanhtay-stage" role="group" aria-label="Interactive demo: speed quiz test">
+    <div class="nhanhtay-quiz-card">
+      <div class="nhanhtay-top-bar">
+        <span>⚡ LƯỢT 1 · PHẢN XẠ</span>
+        <span id="ntTimer" class="nhanhtay-timer-badge">⏱️ 0.00s</span>
+      </div>
+      <div id="ntPrompt" class="nhanhtay-prompt">Sắp xếp 4 hành tinh từ gần Mặt trời nhất đến xa hơn:</div>
+      <div id="ntGrid" class="nhanhtay-options">
+        <button class="nhanhtay-btn" data-idx="2"><span>C</span> <b class="opt-txt">Trái Đất</b></button>
+        <button class="nhanhtay-btn" data-idx="0"><span>A</span> <b class="opt-txt">Sao Thủy</b></button>
+        <button class="nhanhtay-btn" data-idx="3"><span>D</span> <b class="opt-txt">Sao Hỏa</b></button>
+        <button class="nhanhtay-btn" data-idx="1"><span>B</span> <b class="opt-txt">Sao Kim</b></button>
+      </div>
+      <div id="ntStatus" class="nhanhtay-status-msg">Chạm vào các đáp án theo đúng thứ tự (từ 1 đến 4)</div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button id="ntRetryBtn" class="app-chip" style="font-weight:750;">🔄 Thử câu hỏi khác</button>
+    </div>
+    <span class="demo-hint">💡 Chạm các đáp án theo đúng trình tự thật nhanh trước khi hết giờ</span>
+  </div>
+  <p class="demo-note">Bản mô phỏng trên trình duyệt. Ứng dụng chính thức trên iPhone, iPad và Android hỗ trợ rung xúc giác haptic và âm thanh sống động.</p>
+</div>
+<script>
+(function() {
+  var promptEl = document.getElementById('ntPrompt');
+  var gridEl = document.getElementById('ntGrid');
+  var statusEl = document.getElementById('ntStatus');
+  var timerEl = document.getElementById('ntTimer');
+  var retryBtn = document.getElementById('ntRetryBtn');
+
+  var questions = [
+    {
+      p: "Sắp xếp 4 hành tinh từ gần Mặt trời nhất đến xa hơn:",
+      opts: ["Sao Thủy", "Sao Kim", "Trái Đất", "Sao Hỏa"]
+    },
+    {
+      p: "Sắp xếp 4 thời kỳ lịch sử từ xưa đến nay:",
+      opts: ["Thời Đồ Đá", "Thời Đồ Đồng", "Thời Trung Cổ", "Kỷ Nguyên Số"]
+    }
+  ];
+
+  var qIdx = 0;
+  var picked = [];
+  var startTime = Date.now();
+  var timerInterval = null;
+  var isDone = false;
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    startTime = Date.now();
+    timerInterval = setInterval(function() {
+      if (isDone) return;
+      var elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+      timerEl.textContent = '⏱️ ' + elapsed + 's';
+    }, 40);
+  }
+
+  function loadQuestion(idx) {
+    qIdx = idx % questions.length;
+    var q = questions[qIdx];
+    promptEl.textContent = q.p;
+    statusEl.textContent = "Chạm vào các đáp án theo đúng thứ tự (từ 1 đến 4)";
+    picked = [];
+    isDone = false;
+    startTimer();
+
+    var order = [0, 1, 2, 3].sort(function() { return 0.5 - Math.random(); });
+    gridEl.innerHTML = '';
+    var letters = ['A', 'B', 'C', 'D'];
+    order.forEach(function(ansIdx, i) {
+      var btn = document.createElement('button');
+      btn.className = 'nhanhtay-btn';
+      btn.setAttribute('data-idx', ansIdx);
+      btn.innerHTML = '<span>' + letters[i] + '</span> <b class="opt-txt">' + q.opts[ansIdx] + '</b>';
+      btn.addEventListener('click', function() { onBtnClick(btn, ansIdx); });
+      gridEl.appendChild(btn);
+    });
+  }
+
+  function onBtnClick(btn, ansIdx) {
+    if (isDone || btn.classList.contains('picked')) return;
+
+    var expected = picked.length;
+    if (ansIdx === expected) {
+      picked.push(ansIdx);
+      btn.classList.add('picked');
+      var badge = document.createElement('span');
+      badge.className = 'nhanhtay-order-badge';
+      badge.textContent = picked.length;
+      btn.appendChild(badge);
+
+      if (picked.length === 4) {
+        isDone = true;
+        clearInterval(timerInterval);
+        var finalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        timerEl.textContent = '⏱️ ' + finalTime + 's';
+        statusEl.textContent = "⚡ Xuất sắc! Phản xạ cực nhanh. Nhấn bên dưới để thử câu khác.".replace('1.48s', finalTime + 's');
+        var allBtns = gridEl.querySelectorAll('.nhanhtay-btn');
+        allBtns.forEach(function(b) { b.classList.add('correct'); });
+      }
+    } else {
+      btn.style.borderColor = '#ef4444';
+      btn.style.background = 'rgba(239, 68, 68, 0.3)';
+      statusEl.textContent = "❌ Chưa chính xác! Đang đặt lại...";
+      setTimeout(function() {
+        loadQuestion(qIdx);
+      }, 500);
+    }
+  }
+
+  retryBtn.addEventListener('click', function() {
+    loadQuestion(qIdx + 1);
+  });
+
+  loadQuestion(0);
+})();
+</script>
 
 <!-- family:shot --><figure class="shot"><img src="../img/hero.jpg" alt="" width="1600" height="860"></figure><!-- /family:shot -->
 <!-- nhanhtay:videos -->
@@ -128,6 +247,49 @@
   <p class="note">iPhone và iPad chạy iOS và iPadOS 17 trở lên. Android 8 trở lên.</p>
 </section>
 
+
+<section class="card comparison-card" id="comparison">
+  <h2>Game đố vui quảng cáo nạp mạng so với Nhanh Tay</h2>
+  <p class="section-lead">Thử thách phản xạ sắp xếp thuần khiết: không quảng cáo, không mua mạng sống, không dịch máy ẩu.</p>
+  <div class="table-scroll">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Đặc tính</th>
+          <th>Game đố vui thông thường</th>
+          <th class="highlight-col">Nhanh Tay</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Không quảng cáo & gián đoạn</strong></td>
+          <td>Bắt xem video quảng cáo 30 giây sau mỗi màn chơi gây ức chế</td>
+          <td class="highlight-col"><strong>100% không quảng cáo, nhịp chơi liền mạch, phản xạ không giới hạn</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Không giới hạn mạng sống</strong></td>
+          <td>Giới hạn 5 trái tim, ép xem quảng cáo hoặc nạp tiền để chơi tiếp</td>
+          <td class="highlight-col"><strong>Chơi thoải mái bất cứ lúc nào, không có mạng sống cản trở</strong></td>
+        </tr>
+        <tr>
+          <td><strong>34 ngôn ngữ viết riêng</strong></td>
+          <td>Dùng Google Dịch máy móc khiến câu hỏi sai nghĩa, ngô nghê</td>
+          <td class="highlight-col"><strong>150 câu hỏi được viết thủ công riêng cho từng ngôn ngữ và văn hoá</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Cảm giác xúc giác & âm thanh</strong></td>
+          <td>Nút bấm nhỏ, độ trễ cảm ứng cao, âm thanh ồn ào generic</td>
+          <td class="highlight-col"><strong>Bàn phím xúc giác lớn, rung haptic tức thì, âm thanh sống động</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Chơi offline & Kỷ lục</strong></td>
+          <td>Bắt buộc có mạng chỉ để tải quảng cáo và thu thập thông tin</td>
+          <td class="highlight-col"><strong>Chơi 100% ngoại tuyến, lưu kỷ lục trên máy và Game Center</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 <section class="card">
   <h2>Quyền riêng tư, gói gọn một đoạn</h2>
   <p>Nhanh Tay không quảng cáo, không phân tích, không theo dõi, không cần tài khoản và không thu thập dữ liệu nào. Trò chơi chỉ dùng mạng cho dịch vụ trò chơi của nền tảng (Game Center hoặc Google Play Games), và chỉ khi bạn đã đăng nhập. Bản <a href="privacy.html">chính sách quyền riêng tư</a> đầy đủ cũng nói đúng như vậy, chỉ chi tiết hơn.</p>

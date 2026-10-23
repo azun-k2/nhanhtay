@@ -52,6 +52,7 @@
 <body>
 <main>
 <div class="hero">
+  <div class="hero-pill">⚡ 四选一快速排序 · 每种语言 150 道专属题目 · 34 种语言 · 无广告免体力</div>
   <img class="icon" src="../icon-512.png" alt="" width="112" height="112">
   <h1>Nhanh Tay</h1>
   <p class="tagline">四个答案，排好顺序。要快！</p>
@@ -108,6 +109,124 @@
   </details><!-- /family:nav -->
   </nav>
 </div>
+<div class="demo-wrapper" id="demo">
+  <div class="nhanhtay-stage" role="group" aria-label="Interactive demo: speed quiz test">
+    <div class="nhanhtay-quiz-card">
+      <div class="nhanhtay-top-bar">
+        <span>⚡ 第 1 关 · 反应速度挑战</span>
+        <span id="ntTimer" class="nhanhtay-timer-badge">⏱️ 0.00s</span>
+      </div>
+      <div id="ntPrompt" class="nhanhtay-prompt">请按照距离太阳由近及远的顺序排列这四颗行星：</div>
+      <div id="ntGrid" class="nhanhtay-options">
+        <button class="nhanhtay-btn" data-idx="2"><span>C</span> <b class="opt-txt">地球</b></button>
+        <button class="nhanhtay-btn" data-idx="0"><span>A</span> <b class="opt-txt">水星</b></button>
+        <button class="nhanhtay-btn" data-idx="3"><span>D</span> <b class="opt-txt">火星</b></button>
+        <button class="nhanhtay-btn" data-idx="1"><span>B</span> <b class="opt-txt">金星</b></button>
+      </div>
+      <div id="ntStatus" class="nhanhtay-status-msg">请按正确顺序快速点击四个答案（1 到 4）</div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button id="ntRetryBtn" class="app-chip" style="font-weight:750;">🔄 换一道题目</button>
+    </div>
+    <span class="demo-hint">💡 考验敏捷手速：依序点击四个答案卡片，比比谁更快</span>
+  </div>
+  <p class="demo-note">网页端互动演示。iPhone、iPad 及 Android 原生客户端配备超低延迟触觉震动反馈与合成音效。</p>
+</div>
+<script>
+(function() {
+  var promptEl = document.getElementById('ntPrompt');
+  var gridEl = document.getElementById('ntGrid');
+  var statusEl = document.getElementById('ntStatus');
+  var timerEl = document.getElementById('ntTimer');
+  var retryBtn = document.getElementById('ntRetryBtn');
+
+  var questions = [
+    {
+      p: "请按照距离太阳由近及远的顺序排列这四颗行星：",
+      opts: ["水星", "金星", "地球", "火星"]
+    },
+    {
+      p: "请按历史年代从早到晚排列以下时期：",
+      opts: ["石器时代", "青铜时代", "中世纪", "数字时代"]
+    }
+  ];
+
+  var qIdx = 0;
+  var picked = [];
+  var startTime = Date.now();
+  var timerInterval = null;
+  var isDone = false;
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    startTime = Date.now();
+    timerInterval = setInterval(function() {
+      if (isDone) return;
+      var elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+      timerEl.textContent = '⏱️ ' + elapsed + 's';
+    }, 40);
+  }
+
+  function loadQuestion(idx) {
+    qIdx = idx % questions.length;
+    var q = questions[qIdx];
+    promptEl.textContent = q.p;
+    statusEl.textContent = "请按正确顺序快速点击四个答案（1 到 4）";
+    picked = [];
+    isDone = false;
+    startTimer();
+
+    var order = [0, 1, 2, 3].sort(function() { return 0.5 - Math.random(); });
+    gridEl.innerHTML = '';
+    var letters = ['A', 'B', 'C', 'D'];
+    order.forEach(function(ansIdx, i) {
+      var btn = document.createElement('button');
+      btn.className = 'nhanhtay-btn';
+      btn.setAttribute('data-idx', ansIdx);
+      btn.innerHTML = '<span>' + letters[i] + '</span> <b class="opt-txt">' + q.opts[ansIdx] + '</b>';
+      btn.addEventListener('click', function() { onBtnClick(btn, ansIdx); });
+      gridEl.appendChild(btn);
+    });
+  }
+
+  function onBtnClick(btn, ansIdx) {
+    if (isDone || btn.classList.contains('picked')) return;
+
+    var expected = picked.length;
+    if (ansIdx === expected) {
+      picked.push(ansIdx);
+      btn.classList.add('picked');
+      var badge = document.createElement('span');
+      badge.className = 'nhanhtay-order-badge';
+      badge.textContent = picked.length;
+      btn.appendChild(badge);
+
+      if (picked.length === 4) {
+        isDone = true;
+        clearInterval(timerInterval);
+        var finalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        timerEl.textContent = '⏱️ ' + finalTime + 's';
+        statusEl.textContent = "⚡ 太棒了！完美手速！点击下方换一题挑战。".replace('1.48s', finalTime + 's');
+        var allBtns = gridEl.querySelectorAll('.nhanhtay-btn');
+        allBtns.forEach(function(b) { b.classList.add('correct'); });
+      }
+    } else {
+      btn.style.borderColor = '#ef4444';
+      btn.style.background = 'rgba(239, 68, 68, 0.3)';
+      statusEl.textContent = "❌ 顺序有误！正在重置...";
+      setTimeout(function() {
+        loadQuestion(qIdx);
+      }, 500);
+    }
+  }
+
+  retryBtn.addEventListener('click', function() {
+    loadQuestion(qIdx + 1);
+  });
+
+  loadQuestion(0);
+})();
+</script>
 
 <!-- family:shot --><figure class="shot"><img src="../img/hero.jpg" alt="" width="1600" height="860"></figure><!-- /family:shot -->
 <!-- nhanhtay:videos -->
@@ -128,6 +247,49 @@
   <p class="note">iPhone 和 iPad 需 iOS 和 iPadOS 17 或更高版本。Android 需 8 或更高版本。</p>
 </section>
 
+
+<section class="card comparison-card" id="comparison">
+  <h2>充斥广告与体力限制的答题游戏 vs Nhanh Tay</h2>
+  <p class="section-lead">纯粹指尖极速排序挑战，无弹窗广告、无虚假体力限制、非机翻口水题。</p>
+  <div class="table-scroll">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>对比维度</th>
+          <th>常见免费答题手游</th>
+          <th class="highlight-col">Nhanh Tay</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>广告打扰</strong></td>
+          <td>强制观看 30 秒不可跳过的视频广告与悬浮弹窗</td>
+          <td class="highlight-col"><strong>100% 无广告，清爽纯净，沉浸式极速连击体验</strong></td>
+        </tr>
+        <tr>
+          <td><strong>免体力限制</strong></td>
+          <td>设置 5 颗体力爱心，耗尽必须充值或苦等</td>
+          <td class="highlight-col"><strong>无限畅玩，绝不设置任何体力、门票或付费点</strong></td>
+        </tr>
+        <tr>
+          <td><strong>34 种语言原生题库</strong></td>
+          <td>粗糙机器翻译导致语病百出、难以作答</td>
+          <td class="highlight-col"><strong>34 种语言各 150 题，深度契合本地文化</strong></td>
+        </tr>
+        <tr>
+          <td><strong>手感与音效</strong></td>
+          <td>按键狭小触控迟滞，背景噪音刺耳</td>
+          <td class="highlight-col"><strong>大尺寸触感按键，细腻线性马达震动，动态音乐</strong></td>
+        </tr>
+        <tr>
+          <td><strong>离线与排行榜</strong></td>
+          <td>强制联网抓取广告与收集追踪数据</td>
+          <td class="highlight-col"><strong>100% 完全离线游玩，本地保存记录</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 <section class="card">
   <h2>一段话说清隐私</h2>
   <p>Nhanh Tay 没有广告、没有分析、没有跟踪、无需账户，也不收集任何数据。它只在你登录了平台的游戏服务（Game Center 或 Google Play Games）时，才为该服务使用网络。完整的<a href="privacy.html">隐私政策</a>说的也是这些，只是更详细。</p>
